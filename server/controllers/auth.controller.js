@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken';
-import expressJwt from 'express-jwt';
+import { expressjwt } from 'express-jwt';
 import config from './../../config/config.js';
 import User from '../models/user.model.js';
-
-const signIn = (req, res) => {
+const signIn = async (req, res) => {
 	try{
-		let user = User.findOne({"email": req.body.email});
+		let user = await User.findOne({"email": req.body.email});
 		if (!user)
 			return res.status('401').json({error: "User not found"});
 		if (!user.authenticate(req.body.password)) {
@@ -29,9 +28,10 @@ const signOut = (req, res) => {
 	});
 }
 
-const requireSignin = expressJwt({
+const requireSignin = expressjwt({
 	secret: config.jwtSecret,
-	userProperty: 'auth'
+	userProperty: 'auth',
+	algorithms: ['HS256']
 });
 
 const hasAuthorization = (req, res, next) => {
